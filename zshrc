@@ -57,7 +57,10 @@ ZSH_THEME=""
 # You can also set it to another string to have that shown instead of the default red dots.
 # e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
 # Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
+
+# No bell: Shut up Zsh
+unsetopt beep
 
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
@@ -135,7 +138,7 @@ export NVM_DIR="$HOME/.nvm"
 
 envpaths=()
 
-export GOROOT=$HOME/.sdks/go1.24.3
+export GOROOT=$HOME/.sdks/go1.25.3
 envpaths+=("$GOROOT/bin")
 
 export GOPATH=$HOME/go
@@ -144,17 +147,19 @@ envpaths+=("$GOPATH/bin")
 export JAVA_HOME=$HOME/.jdks/openjdk-24.0.1
 envpaths+=("$JAVA_HOME/bin")
 
-export PATH=$( IFS=":"; echo "${envpaths[*]}" ):$PATH
-export PATH=${KREW_ROOT:-$HOME/.krew}/bin:$PATH
-export PATH=${TEX_PATH:-/usr/local/texlive/2025/bin/x86_64-linux}:$PATH
+export PATH="$PATH:$( IFS=":"; echo "${envpaths[*]}" )"
+export PATH="$PATH:${KREW_ROOT:-$HOME/.krew}/bin"
+export PATH="$PATH:${TEX_PATH:-/usr/local/texlive/2025/bin/x86_64-linux}"
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 eval "$(direnv hook zsh)"
 
 source <(kubectl completion zsh)
 complete -o default -F __start_kubectl kube
 
 source <(helm completion zsh)
+source <(kubebuilder completion zsh)
+source <(kind completion zsh)
 
 eval $(codex autocomplete:script zsh)
 source <(ionosctl completion zsh)

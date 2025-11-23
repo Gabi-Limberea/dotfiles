@@ -3,6 +3,9 @@ case $(tty) in
 	*tty*) exec bash -l;;
 esac
 
+# Load profiling module
+#zmodload zsh/zprof
+
 if [[ "$TERMINAL_EMULATOR" != "vscode" ]] && [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] && [ -z "$TMUX" ] && [[ "$USER" == "gabi" ]]; then
 	ATTACH_OPT=$(tmux ls 2> /dev/null | grep -vq attached && echo "attach -d")
 	exec eval "tmux $ATTACH_OPT"
@@ -83,7 +86,7 @@ unsetopt beep
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(history-substring-search zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -124,7 +127,7 @@ alias tmuxconfig="nano ~/.tmux.conf"
 alias envconfig="nano ~/work/.envrc"
 alias kube="kubectl"
 alias kind-cloud-provider="cloud-provider-kind"
-alias moss="~/Documents/Programming/moss.sh"
+alias moss="~/Documents/moss.sh"
 alias i="ionosctl"
 alias isdk="ionossdk"
 alias sdktr="csdk-test-runner"
@@ -132,9 +135,10 @@ alias tf="terraform"
 
 export KUBE_EDITOR="nano"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# This sources NVM into the session (takes a long while)
+#export NVM_DIR="$HOME/.nvm"
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 envpaths=()
 
@@ -154,20 +158,20 @@ export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbi
 
 eval "$(direnv hook zsh)"
 
+fpath+=($HOME/.config/ionosctl/completion/zsh)
+autoload -Uz compinit; compinit
+autoload -U +X bashcompinit && bashcompinit
+
 source <(kubectl completion zsh)
 complete -o default -F __start_kubectl kube
 
 source <(helm completion zsh)
 source <(kubebuilder completion zsh)
 source <(kind completion zsh)
+source <(crossplane completions)
 
 eval $(codex autocomplete:script zsh)
 source <(ionosctl completion zsh)
-
-fpath+=($HOME/.config/ionosctl/completion/zsh)
-autoload -Uz compinit; compinit
-
-autoload -U +X bashcompinit && bashcompinit
 
 complete -o nospace -C /usr/bin/terraform terraform
 complete -o nospace -C /home/linuxbrew/.linuxbrew/Cellar/opentofu/1.10.5/bin/tofu tofu
@@ -179,3 +183,6 @@ complete -o nospace -C /home/linuxbrew/.linuxbrew/Cellar/opentofu/1.10.5/bin/tof
 
 # Starship Theme
 eval "$(starship init zsh)"
+
+# Profile zsh
+#zprof > /tmp/zsh-profiling-res
